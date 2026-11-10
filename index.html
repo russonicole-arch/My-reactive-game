@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reactive Horror Game</title>
+    <style>
+        body { background-color: #1a1a2e; color: #fff; font-family: serif; display: flex; flex-direction: column; justify-content: flex-end; min-height: 90vh; padding: 20px; }
+        .box { background: rgba(10, 10, 15, 0.9); border: 2px solid #4a1515; padding: 20px; border-radius: 8px; cursor: pointer; }
+        .btn { display: block; background: #1f1313; border: 1px solid #7a2222; color: white; padding: 10px; margin-top: 10px; text-align: left; width: 100%; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div style="max-width: 600px; margin: 0 auto; width: 100%;">
+        <div id="stats" style="font-size: 12px; color: #666; margin-bottom: 10px;">[Obsession: 0 | Danger: 0]</div>
+        <div id="textbox" class="box" onclick="nextLine()">
+            <div id="speaker" style="font-weight: bold; color: #ff4d4d; margin-bottom: 5px;"></div>
+            <p id="dialogue" style="font-size: 18px; margin: 0;"></p>
+        </div>
+        <div id="choices"></div>
+    </div>
+
+    <script>
+        const story = {
+            start: { text: ["The rain pours outside...", "Standing before you is a tall, porcelain-masked jester."], choices: [{ text: "Greet him.", next: "greet", obs: 2 }, { text: "Back away.", next: "run", dng: 2 }] },
+            greet: { speaker: "Jester", text: ["How brave. Most run when the show begins.", "He steps closer..."], choices: [] },
+            run: { speaker: "Jester", text: ["Why do you pull away from my stage?", "The doors lock automatically..."], choices: [] }
+        };
+
+        let current = "start", line = 0, obsession = 0, danger = 0;
+        function update() {
+            let s = story[current];
+            document.getElementById("stats").innerText = `[Obsession: ${obsession} | Danger: ${danger}]`;
+            document.getElementById("speaker").innerText = s.speaker || "";
+            document.getElementById("dialogue").innerText = s.text[line];
+            let cDiv = document.getElementById("choices"); cDiv.innerHTML = "";
+            if (line === s.text.length - 1) {
+                s.choices.forEach(c => {
+                    let b = document.createElement("button"); b.className = "btn"; b.innerText = c.text;
+                    b.onclick = () => { obsession += c.obs||0; danger += c.dng||0; current = c.next; line = 0; update(); };
+                    cDiv.appendChild(b);
+                });
+            }
+        }
+        function nextLine() { if (line < story[current].text.length - 1) { line++; update(); } }
+        update();
+    </script>
+</body>
+</html>
